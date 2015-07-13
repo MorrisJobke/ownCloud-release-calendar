@@ -23,6 +23,12 @@
  * SOFTWARE.
  */
 
+namespace ownCloud;
+use Eluceo\iCal\Component\Calendar;
+use Eluceo\iCal\Component\Event;
+
+require('vendor/autoload.php');
+
 /**
  * Class Release
  */
@@ -30,7 +36,7 @@
 class Release {
 
     /**
-     * @var DateTime
+     * @var \DateTime
      */
     protected $releaseDate;
 
@@ -40,7 +46,7 @@ class Release {
     protected $version;
 
     /**
-     * @var DateTime Day 1 of the release cycle
+     * @var \DateTime Day 1 of the release cycle
      */
     protected $startDate;
 
@@ -57,20 +63,20 @@ class Release {
     }
 
     /**
-     * @return DateTime
+     * @return \DateTime
      */
     public function getDayAfterRelease() {
-        return $this->releaseDate->add(DateInterval::createFromDateString('1 day'));
+        return $this->releaseDate->add(\DateInterval::createFromDateString('1 day'));
     }
 
     /**
      * @return string version string of the previous release
-     * @throws Exception if this is a major release
+     * @throws \Exception if this is a major release
      */
     public function getPreviousVersion() {
         $version = explode('.', $this->version);
         if ($version[2] === '0') {
-            throw new Exception('No previous version available.');
+            throw new \Exception('No previous version available.');
         }
 
         $patchLevel = (int)$version[2];
@@ -87,18 +93,18 @@ class Release {
     }
 
     /**
-     * @param DateTime|String $date
+     * @param \DateTime|String $date
      */
     public function setStartDate($date) {
-        if (!$date instanceof DateTime) {
+        if (!$date instanceof \DateTime) {
             $date = $this->parseDate($date);
         }
-        $date->sub(DateInterval::createFromDateString('1 day'));
+        $date->sub(\DateInterval::createFromDateString('1 day'));
         $this->startDate = $date;
     }
 
     public function hasStartDate() {
-        return $this->startDate instanceof DateTime;
+        return $this->startDate instanceof \DateTime;
     }
 
     public function calculateDates($rules, $specialDates) {
@@ -134,6 +140,8 @@ class Release {
         foreach($this->dates as $date) {
             $formattedDate = $date['date']->format('Y-m-d');
             $result[$formattedDate] = $date['info'];
+            $result[$formattedDate]['date'] = $date['date'];
+            $result[$formattedDate]['title'] = $this->version . ' ' . $result[$formattedDate]['title'];
         }
 
         ksort($result);
@@ -142,19 +150,19 @@ class Release {
 
     /**
      * @param String $date
-     * @return DateTime
+     * @return \DateTime
      */
     protected function parseDate($date) {
-        return DateTime::createFromFormat('Y-m-d H:i:s', $date . '00:00:00', new DateTimeZone('UTC'));
+        return \DateTime::createFromFormat('Y-m-d H:i:s', $date . '00:00:00', new \DateTimeZone('UTC'));
     }
 
     /**
-     * @param DateTime $baseDate
+     * @param \DateTime $baseDate
      * @param String $days
-     * @return DateTime
+     * @return \DateTime
      */
     protected function calculateDate($baseDate, $days) {
-        $baseDate->add(DateInterval::createFromDateString($days . ' day'));
+        $baseDate->add(\DateInterval::createFromDateString($days . ' day'));
         return $baseDate;
     }
 }
@@ -204,7 +212,7 @@ foreach ($releases as $releaseVersion) {
         $rules = $data['major'];
 
         if (!$release->hasStartDate()) {
-            throw new Exception('No start date for major release ' . $releaseVersion);
+            throw new \Exception('No start date for major release ' . $releaseVersion);
         }
 
     }
@@ -214,10 +222,22 @@ foreach ($releases as $releaseVersion) {
     $releaseDates[$releaseVersion] = $release;
 }
 
+$vCalendar = new Calendar('owncloud.org');
+
 
 foreach($releaseDates as $releaseVersion => $release) {
     $dates = $release->getDates();
     foreach($dates as $date => $info) {
+        $vEvent = new Event();
+        $vEvent
+            ->setDtStart($info['date'])
+            ->setDtEnd($info['date'])
+            ->setNoTime(true)
+            ->setSummary($info['title'])
+            ->setDescription($info['comment']);
+        $vCalendar->addComponent($vEvent);
         echo $releaseVersion . ' - ' . $date . ' : ' . $info['title'] . ' - ' . $info['comment'] . PHP_EOL;
     }
 }
+
+file_put_contents('ownCloud-releases.ical', $vCalendar->render());

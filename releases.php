@@ -167,31 +167,18 @@ class Release {
     }
 }
 
-$releases = [
-    '6.0.9',
-    '6.0.10',
-    '7.0.7',
-    '7.0.8',
-    '8.0.5',
-    '8.0.6',
-    '8.1.1',
-    '8.2.0',
-];
-
 $data = json_decode(file_get_contents('schedule.json'), true);
 /* @var Release[] $dates */
 $releaseDates = [];
+$releases = array_keys($data['releases']);
 
 foreach ($releases as $releaseVersion) {
 
     $release = new Release($releaseVersion);
 
-    $specialDates = null;
-    if (isset($data['releases'][$releaseVersion])) {
-        $specialDates = $data['releases'][$releaseVersion];
-    }
+    $specialDates = $data['releases'][$releaseVersion];
 
-    if (isset($data['releases'][$releaseVersion]) && isset($data['releases'][$releaseVersion]["1"])) {
+    if (isset($data['releases'][$releaseVersion]["1"])) {
         $release->setStartDate(
             $data['releases'][$releaseVersion]["1"]
         );
@@ -233,10 +220,11 @@ foreach($releaseDates as $releaseVersion => $release) {
             ->setDtStart($info['date'])
             ->setDtEnd($info['date'])
             ->setNoTime(true)
+            ->setUniqueId(sha1($date . ' : ' . $info['title'] . ' - ' . $info['comment']))
             ->setSummary($info['title'])
             ->setDescription($info['comment']);
         $vCalendar->addComponent($vEvent);
-        echo $releaseVersion . ' - ' . $date . ' : ' . $info['title'] . ' - ' . $info['comment'] . PHP_EOL;
+        echo $date . ' : ' . $info['title'] . ' - ' . $info['comment'] . PHP_EOL;
     }
 }
 

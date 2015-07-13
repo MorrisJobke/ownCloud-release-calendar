@@ -1,0 +1,76 @@
+{
+  "minor": {
+    "cycle": "28",
+    "1": {
+      "title": "unfreeze",
+      "comment": "stable branch unfreeze"
+    },
+    "13": {
+      "title": "freeze",
+      "comment": "stable branch freeze"
+    },
+    "14": {
+      "title": "beta",
+      "comment": "beta release"
+    },
+    "21": {
+      "title": "rc1",
+      "comment": "rc1 release"
+    },
+    "25": {
+      "title": "rc2",
+      "comment": "rc2 release"
+    },
+    "27": {
+      "title": "final",
+      "comment": "final gets created"
+    },
+    "28": {
+      "title": "Release",
+      "comment": "release is announced"
+    },
+    "35": {
+      "title": "Security advisories",
+      "comment": "Security advisories are made public"
+    }
+  },
+  "major": {
+    "cycle": "84",
+    "1": {
+      "title": "New release cycle",
+      "comment": ""
+    },
+    "28": {
+      "title": "End of Development Cycle 1",
+      "comment": ""
+    },
+    "56": {
+      "title": "End of Development Cycle 2",
+      "comment": ""
+    },
+    "84": {
+      "title": "Release",
+      "comment": "release is announced"
+    }
+  },
+  "releases": {
+    "6.0.9": {
+      "1": "2015-06-10"
+    },
+    "7.0.7": {
+      "1": "2015-06-10"
+    },
+    "8.0.5": {
+      "1": "2015-06-10"
+    },
+    "8.1.1": {
+      "1": "2015-07-08"
+    },
+    "8.2.0": {
+      "1": "2015-07-08",
+      "28": "2015-08-11",
+      "56": "2015-09-15",
+      "84": "2015-10-20"
+    }
+  }
+}
